@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
     backup1.vm.provision "ansible_local" do |ansible|
       ansible.verbose = "v"
       ansible.playbook = "ansible/backup.yml"
-      ansible.inventory_path = "dev"
+      ansible.inventory_path = "ansible/dev"
     end
   end
 end
