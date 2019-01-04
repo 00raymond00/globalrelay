@@ -16,4 +16,4 @@ cron.weekly )
 52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/
 cron.monthly )
 #
-0 3 * * * root /root/backup_mysql.sh
+0 3 * * * root /root/backup_mysql.sh > /var/log/backup_mysql.log
