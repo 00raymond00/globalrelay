@@ -61,7 +61,6 @@
       - python-mysqldb
       - software-properties-common
       - ansible
-      - mailutils
 
 - name: install mysql-server
   apt: name=mysql-server state=present
