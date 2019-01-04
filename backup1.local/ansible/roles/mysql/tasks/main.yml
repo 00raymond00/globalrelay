@@ -7,13 +7,16 @@
     group: root
     mode: 0644
 
-- name: copy import_mysql.sh file
+- name: copy files to /root
   copy:
-    src: roles/mysql/files/import_mysql.sh
+    src: roles/mysql/files/{{ item }}
     dest: /root
     owner: root
     group: root
     mode: 0755
+  with_items:
+    - import_mysql.sh
+    - mysql_test.py
 
 - name: install ppa for ansible
   apt_repository:

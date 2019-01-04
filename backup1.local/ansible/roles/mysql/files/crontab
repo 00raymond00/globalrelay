@@ -16,4 +16,5 @@ cron.weekly )
 52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/
 cron.monthly )
 #
-0 10 * * * root /root/import_mysql.sh
+0 10 * * * root /root/import_mysql.sh > /var/log/import_mysql.log
+0 12 * * * root /root/mysql_test.py > /var/log/mysql_test.log
