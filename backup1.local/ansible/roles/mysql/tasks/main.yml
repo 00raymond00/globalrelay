@@ -1,0 +1,56 @@
+---
+- name: copy crontab file
+  copy:
+    src: roles/mysql/files/crontab
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy import_mysql.sh file
+  copy:
+    src: roles/mysql/files/import_mysql.sh
+    dest: /root
+    owner: root
+    group: root
+    mode: 0755
+
+- name: install ppa for ansible
+  apt_repository:
+    repo: ppa:ansible/ansible
+
+- name: install tools
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - python-mysqldb
+      - software-properties-common
+      - ansible
+      - mailutils
+
+- name: install mysql-server
+  apt: name=mysql-server state=present
+
+- name: ensure mysql listenting on correct ip
+  lineinfile:
+    path: /etc/mysql/my.cnf
+    regexp: '^bind-address'
+    line: 'bind-address = {{ ansible_eth0.ipv4.address }}'
+  notify: restart mysql-server
+
+- name: ensure mysql started
+  service: name=mysql state=started enabled=yes
+
+- name: copy various files
+  copy:
+    src: roles/mysql/files/{{ item }}
+    dest: /etc/ansible
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - ansible.cfg
+    - dev
+    - import_mysql.yml

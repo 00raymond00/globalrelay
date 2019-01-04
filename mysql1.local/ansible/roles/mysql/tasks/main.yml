@@ -1,0 +1,100 @@
+---
+- name: copy hosts file
+  copy:
+    src: roles/mysql/files/{{ item }}
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - hosts
+    - crontab
+
+- name: copy backup_mysql.sh file
+  copy:
+    src: roles/mysql/files/backup_mysql.sh
+    dest: /root
+    owner: root
+    group: root
+    mode: 0755
+
+- name: create /root/.ssh dir
+  file:
+    path: /root/.ssh
+    state: directory
+    mode: 0700
+
+- name: copy ssh private key
+  copy:
+    src: roles/mysql/files/id_rsa
+    dest: /root/.ssh/
+    owner: root
+    group: root
+    mode: 0600
+
+- name: copy ssh public key
+  copy:
+    src: roles/mysql/files/id_rsa.pub
+    dest: /root/.ssh/
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy ssh config file
+  copy:
+    src: roles/mysql/files/config
+    dest: /root/.ssh/
+    owner: root
+    group: root
+    mode: 0400
+
+- name: install ppa for ansible
+  apt_repository:
+    repo: ppa:ansible/ansible
+
+- name: install tools
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - python-mysqldb
+      - software-properties-common
+      - ansible
+      - mailutils
+
+- name: install mysql-server
+  apt: name=mysql-server state=present
+
+- name: ensure mysql listenting on correct ip
+  lineinfile:
+    path: /etc/mysql/my.cnf
+    regexp: '^bind-address'
+    line: 'bind-address = {{ ansible_eth0.ipv4.address }}'
+  notify: restart mysql-server
+
+- name: ensure mysql started
+  service: name=mysql state=started enabled=yes
+
+- name: create database
+  mysql_db: name=demo state=present
+
+- name: create demo user
+  mysql_user:
+    name: '{{ db_user_name }}'
+    password: '{{ db_user_pass }}'
+    priv: '{{ db_name }}.*:ALL'
+    host: '{{ db_user_host }}'
+    state: present
+
+- name: copy various files
+  copy:
+    src: roles/mysql/files/{{ item }}
+    dest: /etc/ansible
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - ansible.cfg
+    - dev
+    - backup_mysql.yml

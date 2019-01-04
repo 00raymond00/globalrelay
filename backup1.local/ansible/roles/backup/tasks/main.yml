@@ -1,0 +1,24 @@
+---
+- name: create /root/.ssh
+  file:
+    path: /root/.ssh
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+
+- name: copy hosts file
+  copy:
+    src: roles/backup/files/hosts
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy authorized keys file
+  copy:
+    src: roles/backup/files/authorized_keys
+    dest: /root/.ssh
+    owner: root
+    group: root
+    mode: 0600

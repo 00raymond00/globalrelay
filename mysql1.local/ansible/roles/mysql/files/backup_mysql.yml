@@ -1,0 +1,26 @@
+---
+- hosts: mysql
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Dump all databases to hostname.sql
+      mysql_db:
+        state: dump
+        name: all
+        target: /tmp/mysql1.sql
+
+    - name: Compress mysql1.sql file and remove it
+      archive:
+        path: /tmp/mysql1.sql
+        remove: yes
+
+- hosts: backup
+  become: true
+  tasks:
+    - name: copy mysqldump to backup1 server
+      copy:
+        src: /tmp/mysql1.sql.gz
+        dest: /var/backups
+        owner: root
+        group: root
+        mode: 0640

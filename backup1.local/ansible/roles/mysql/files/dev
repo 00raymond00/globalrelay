@@ -1,0 +1,5 @@
+[mysql]
+mysql1
+
+[backup]
+backup1 ansible_connection=local
